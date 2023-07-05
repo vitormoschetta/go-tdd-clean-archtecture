@@ -1,1 +1,2 @@
 *.out
+.pre-commit*
