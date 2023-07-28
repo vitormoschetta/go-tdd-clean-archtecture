@@ -82,7 +82,7 @@ func TestCreateProduct_InternalError(t *testing.T) {
 
 func TestUseCase_QueryProductMinMaxPrice_Success(t *testing.T) {
 	// When | Arrange
-	input := QueryProductMinMaxPrice{
+	input := GetProductByMinMaxPriceInput{
 		MinPrice: 0,
 		MaxPrice: 201,
 	}
@@ -91,7 +91,7 @@ func TestUseCase_QueryProductMinMaxPrice_Success(t *testing.T) {
 	useCase := NewProductUseCase(repository)
 
 	// Given | Act
-	output := useCase.QueryMinMaxPrice(input)
+	output := useCase.GetByMinMaxPrice(input)
 
 	// Then | Assert
 	assert.Equal(t, 0, len(output.GetErrors()))
@@ -101,7 +101,7 @@ func TestUseCase_QueryProductMinMaxPrice_Success(t *testing.T) {
 
 func TestUseCase_QueryProductMinMaxPrice_InvalidInput(t *testing.T) {
 	// When | Arrange
-	input := QueryProductMinMaxPrice{
+	input := GetProductByMinMaxPriceInput{
 		MinPrice: -1,
 		MaxPrice: 0,
 	}
@@ -110,7 +110,7 @@ func TestUseCase_QueryProductMinMaxPrice_InvalidInput(t *testing.T) {
 	useCase := NewProductUseCase(repository)
 
 	// Given | Act
-	output := useCase.QueryMinMaxPrice(input)
+	output := useCase.GetByMinMaxPrice(input)
 
 	// Then | Assert
 	assert.Equal(t, 1, len(output.GetErrors()))
@@ -119,7 +119,7 @@ func TestUseCase_QueryProductMinMaxPrice_InvalidInput(t *testing.T) {
 
 func TestUseCase_QueryProductMinMaxPrice_InvalidInput2(t *testing.T) {
 	// When | Arrange
-	input := QueryProductMinMaxPrice{
+	input := GetProductByMinMaxPriceInput{
 		MinPrice: 1,
 		MaxPrice: 0,
 	}
@@ -128,9 +128,28 @@ func TestUseCase_QueryProductMinMaxPrice_InvalidInput2(t *testing.T) {
 	useCase := NewProductUseCase(repository)
 
 	// Given | Act
-	output := useCase.QueryMinMaxPrice(input)
+	output := useCase.GetByMinMaxPrice(input)
 
 	// Then | Assert
 	assert.Equal(t, 1, len(output.GetErrors()))
 	assert.Equal(t, shared.DomainCodeInvalidInput, output.GetCode())
+}
+
+func TestUseCase_QueryProductMinMaxPrice_InternalError(t *testing.T) {
+	// When | Arrange
+	input := GetProductByMinMaxPriceInput{
+		MinPrice: 0,
+		MaxPrice: 201,
+	}
+	repository := mock.NewProductRepositoryFake()
+	repository.SetError()
+	useCase := NewProductUseCase(repository)
+
+	// Given | Act
+	output := useCase.GetByMinMaxPrice(input)
+
+	// Then | Assert
+	assert.Equal(t, 1, len(output.GetErrors()))
+	assert.Equal(t, shared.DomainCodeInternalError, output.GetCode())
+	assert.Equal(t, "Internal error", output.GetErrors()[0])
 }
